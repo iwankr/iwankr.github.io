@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Countdown naar Zweden 🇸🇪</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to top right, #1e3c72, #2a5298);
+      color: #fff;
+      margin: 0;
+      padding: 2em;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.2em;
+    }
+
+    #countdown {
+      font-size: 1.8em;
+      margin-bottom: 30px;
+    }
+
+    #progress-bar-container {
+      width: 80%;
+      height: 25px;
+      background-color: #444;
+      margin: 0 auto 40px auto;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #00e6e6;
+      transition: width 1s ease-in-out;
+    }
+
+    .calendar-wrapper {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+
+    .calendar-page {
+      width: 70px;
+      height: 90px;
+      background: #fff;
+      color: #333;
+      border-radius: 5px;
+      margin: 5px;
+      font-weight: bold;
+      font-size: 1.4em;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: transform 0.6s ease, opacity 1s ease;
+      animation-fill-mode: forwards;
+    }
+
+    .calendar-page.today {
+      background: #ffe066;
+      color: #000;
+    }
+
+    .calendar-page.future {
+      background: #edf2f4;
+    }
+
+    .calendar-page.past {
+      animation: flyaway 1.2s ease-out forwards;
+    }
+
+    @keyframes flyaway {
+      0% {
+        transform: rotate(0deg) translate(0, 0);
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(-20deg) translate(-200px, -150px);
+        opacity: 0;
+      }
+    }
+
+    svg text {
+      font-size: 14px;
+      font-family: sans-serif;
+    }
+
+    .footer {
+      margin-top: 60px;
+      font-size: 1em;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Countdown naar Zweden 🇸🇪</h1>
+  <div id="countdown">Laden...</div>
+
+  <div id="progress-bar-container">
+    <div id="progress-bar"></div>
+  </div>
+
+<h2>🗓️ Kalender tot vertrek</h2>
+<div class="calendar-wrapper" id="fancy-calendar"></div>
+
+
+  <h2 style="margin-top: 80px;">🗺️ Interactieve routekaart</h2>
+  <div style="margin-top: 20px;">
+<iframe
+  src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3803716.7473078813!2d7.198057365357823!3d54.97620399640315!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e0!4m3!3m2!1d52.7291979!2d6.4219641!4m3!3m2!1d54.3232921!2d10.1227652!4m3!3m2!1d57.70887!2d11.97456!5e0!3m2!1snl!2snl!4v1721389021506!5m2!1snl!2snl"
+  width="100%"
+  height="450"
+  style="border:0; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.5);"
+  allowfullscreen=""
+  loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade"
+></iframe>
+
+  </div>
+
+  <div class="footer">
+    We vertrekken op 16 augustus 2025 – aftellen maar!
+  </div>
+
+  <script>
+    // Countdown & tijdsbalk
+    const countdownEl = document.getElementById('countdown');
+    const progressBar = document.getElementById('progress-bar');
+    const endDate = new Date("2025-08-16T00:00:00");
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = endDate - now;
+
+      if (diff <= 0) {
+        countdownEl.textContent = "Het is zover! Op naar Zweden! 🇸🇪";
+        clearInterval(timer);
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdownEl.textContent = `${days} dagen, ${hours} uur, ${minutes} min, ${seconds} sec`;
+
+      const totalTime = endDate - todayMidnight;
+      const timePassed = now - todayMidnight;
+      const percent = Math.min(100, Math.max(0, (timePassed / totalTime) * 100));
+      progressBar.style.width = percent + '%';
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Kalender
+    const calendarWrapper = document.getElementById('fancy-calendar');
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const monday = new Date(today);
+    const offset = (dayOfWeek + 6) % 7;
+    monday.setDate(today.getDate() - offset);
+    monday.setHours(0, 0, 0, 0);
+
+    const totalDays = Math.ceil((endDate - monday) / (1000 * 60 * 60 * 24));
+    for (let i = 0; i <= totalDays; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
+
+      const page = document.createElement('div');
+      page.classList.add('calendar-page');
+
+      if (date.toDateString() === today.toDateString()) {
+        page.classList.add('today');
+      } else if (date < today) {
+        page.classList.add('past');
+      } else {
+        page.classList.add('future');
+      }
+
+      page.textContent = date.getDate();
+      calendarWrapper.appendChild(page);
+    }
+  </script>
+
+</body>
+</html>
