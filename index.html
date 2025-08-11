@@ -1,199 +1,239 @@
-<!DOCTYPE html>
+<!--
+Overdreven Aftelklok naar je vakantie naar Zweden.
+Standaard target: maandag 18 augustus 2025 00:00 (start week 34, 2025).
+Wijzig de target-datum onderaan (variable `targetDate`) naar wens.
+
+Opslaan als: countdown-sweden.html en open in je browser.
+-->
+
+<!doctype html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <title>Countdown naar Zweden 🇸🇪</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OVERDREVEN AFTELKLOK — Zweden Vakantie</title>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(to top right, #1e3c72, #2a5298);
-      color: #fff;
-      margin: 0;
-      padding: 2em;
-      text-align: center;
+    :root{
+      --bg1:#021; --bg2:#013; --accent:#00d1ff; --accent2:#8ef08e;
+      --glass: rgba(255,255,255,0.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    body{
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(0,160,255,0.06), transparent),
+                  radial-gradient(900px 500px at 90% 90%, rgba(140,240,140,0.03), transparent),
+                  linear-gradient(160deg,var(--bg1),var(--bg2));
+      color: #eafcff; -webkit-font-smoothing:antialiased; padding:32px; display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
     }
 
-    h1 {
-      font-size: 3em;
-      margin-bottom: 0.2em;
-    }
+    .stage{width:100%;max-width:1100px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border-radius:20px; padding:28px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.03); position:relative;}
 
-    #countdown {
-      font-size: 1.8em;
-      margin-bottom: 30px;
-    }
+    .headline{display:flex;align-items:center;gap:18px}
+    .flag{width:78px;height:48px;border-radius:6px;overflow:hidden;border:2px solid rgba(255,255,255,0.06);box-shadow:0 6px 30px rgba(0,0,0,0.5)}
+    .title{font-size:30px;font-weight:700;letter-spacing:0.5px}
+    .subtitle{opacity:0.8;font-size:13px}
 
-    #progress-bar-container {
-      width: 80%;
-      height: 25px;
-      background-color: #444;
-      margin: 0 auto 40px auto;
-      border-radius: 15px;
-      overflow: hidden;
-    }
+    .countdown{margin-top:18px; display:flex; gap:12px; align-items:center; justify-content:space-between}
 
-    #progress-bar {
-      height: 100%;
-      width: 0%;
-      background-color: #00e6e6;
-      transition: width 1s ease-in-out;
-    }
+    .bigCard{flex:1;background:var(--glass); padding:18px;border-radius:14px;display:flex;align-items:center;gap:16px;min-height:120px;backdrop-filter: blur(6px);
+             border:1px solid rgba(255,255,255,0.04)}
+    .timeDigits{display:flex;gap:12px;align-items:center}
+    .digit{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); padding:18px 22px;border-radius:12px;min-width:68px;text-align:center;font-weight:800;font-size:36px;position:relative;}
+    .label{font-size:11px;opacity:0.8;margin-top:6px;text-transform:uppercase}
 
-    .calendar-wrapper {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 40px;
-    }
+    /* pulse animation */
+    .digit::after{content:'';position:absolute;inset:0;border-radius:12px;box-shadow:0 0 0 rgba(0,0,0,0);}
+    .digit.pulse::after{animation:pulse 1300ms ease-out infinite}
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,209,255,0.18)}50%{box-shadow:0 0 40px 18px rgba(0,209,255,0.02)}100%{box-shadow:0 0 0 0 rgba(0,209,255,0)}}
 
-    .calendar-page {
-      width: 70px;
-      height: 90px;
-      background: #fff;
-      color: #333;
-      border-radius: 5px;
-      margin: 5px;
-      font-weight: bold;
-      font-size: 1.4em;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: transform 0.6s ease, opacity 1s ease;
-      animation-fill-mode: forwards;
-    }
+    /* huge celebration area */
+    .rightPanel{width:360px;display:flex;flex-direction:column;gap:12px;align-items:center}
+    .rocket{width:120px;height:120px}
+    .progress{width:100%;height:12px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0%;transition:width 600ms linear}
 
-    .calendar-page.today {
-      background: #ffe066;
-      color: #000;
-    }
+    .meta{font-size:13px;opacity:0.9;text-align:center}
 
-    .calendar-page.future {
-      background: #edf2f4;
-    }
+    /* confetti pieces */
+    .confetti{position:absolute;inset:0;pointer-events:none}
+    .confetti span{position:absolute;width:10px;height:16px;opacity:0;transform-origin:center;animation:fall 3000ms linear infinite}
+    @keyframes fall{0%{opacity:1; transform:translateY(-20vh) rotate(0) }100%{opacity:1; transform:translateY(120vh) rotate(540deg) }}
 
-    .calendar-page.past {
-      animation: flyaway 1.2s ease-out forwards;
-    }
+    /* footer controls */
+    .controls{margin-top:16px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .btn{background:linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02));padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
 
-    @keyframes flyaway {
-      0% {
-        transform: rotate(0deg) translate(0, 0);
-        opacity: 1;
-      }
-      100% {
-        transform: rotate(-20deg) translate(-200px, -150px);
-        opacity: 0;
-      }
-    }
+    .note{font-size:12px;opacity:0.8}
 
-    svg text {
-      font-size: 14px;
-      font-family: sans-serif;
-    }
-
-    .footer {
-      margin-top: 60px;
-      font-size: 1em;
-      color: #ccc;
-    }
+    /* responsiveness */
+    @media (max-width:900px){.countdown{flex-direction:column}.rightPanel{width:100%}.bigCard{min-height:unset}}
   </style>
 </head>
 <body>
+  <div class="stage" role="application" aria-label="Aftelklok voor vakantie naar Zweden">
+    <div class="headline">
+      <div class="flag" aria-hidden>
+        <!-- simple Swedish flag SVG -->
+        <svg viewBox="0 0 16 10" width="100%" height="100%" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="16" height="10" fill="#006aa7"/>
+          <rect x="3" width="2" height="10" fill="#fecc00"/>
+          <rect y="4" width="16" height="2" fill="#fecc00"/>
+        </svg>
+      </div>
+      <div>
+        <div class="title">ZWEDEN: LET'S GO </div>
+        <div class="subtitle">Start: maandag 18 augustus 2025 — Week 34. Pak de daktent en Jimny! 🇸🇪🚙</div>
+      </div>
+    </div>
 
-  <h1>Countdown naar Zweden 🇸🇪</h1>
-  <div id="countdown">Laden...</div>
+    <div class="countdown">
+      <div class="bigCard">
+        <div style="flex:1">
+          <div style="font-size:13px;opacity:0.85;">Nog maar</div>
+          <div class="timeDigits" id="timeDigits" role="timer" aria-live="polite">
+            <div class="digit" id="days"><div class="num">0</div><div class="label">Dagen</div></div>
+            <div class="digit" id="hours"><div class="num">00</div><div class="label">Uren</div></div>
+            <div class="digit" id="minutes"><div class="num">00</div><div class="label">Minuten</div></div>
+            <div class="digit" id="seconds"><div class="num">00</div><div class="label">Seconden</div></div>
+          </div>
 
-  <div id="progress-bar-container">
-    <div id="progress-bar"></div>
-  </div>
+          <div class="controls">
+            <div style="display:flex;gap:8px">
+              <button class="btn" id="celebrateBtn">Start Feest 🎉</button>
+              <button class="btn" id="toggleSound">🔈 Geluid</button>
+            </div>
+            <div class="note">Tijdzone: je browser</div>
+          </div>
+        </div>
 
-<h2>🗓️ Kalender tot vertrek</h2>
-<div class="calendar-wrapper" id="fancy-calendar"></div>
+        <div style="width:8px"></div>
 
+      </div>
 
-  <h2 style="margin-top: 80px;">🗺️ Interactieve routekaart</h2>
-  <div style="margin-top: 20px;">
-<iframe
-  src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d3803716.7473078813!2d7.198057365357823!3d54.97620399640315!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e0!4m3!3m2!1d52.7291979!2d6.4219641!4m3!3m2!1d54.3232921!2d10.1227652!4m3!3m2!1d57.70887!2d11.97456!5e0!3m2!1snl!2snl!4v1721389021506!5m2!1snl!2snl"
-  width="100%"
-  height="450"
-  style="border:0; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.5);"
-  allowfullscreen=""
-  loading="lazy"
-  referrerpolicy="no-referrer-when-downgrade"
-></iframe>
+      <div class="rightPanel">
+        <svg class="rocket" viewBox="0 0 64 64" aria-hidden>
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#00d1ff"/><stop offset="1" stop-color="#8ef08e"/></linearGradient>
+          </defs>
+          <g transform="translate(8,4)">
+            <path d="M20 0 C30 10 40 10 44 22 C46 28 36 34 28 36 C20 38 8 34 4 24 C0 14 10 6 20 0 Z" fill="url(#g1)"/>
+            <circle cx="24" cy="20" r="6" fill="#021" opacity="0.9"/>
+          </g>
+        </svg>
 
-  </div>
+        <div class="progress" title="Voortgang tot vertrek">
+          <i id="progressBar"></i>
+        </div>
+        <div class="meta">Boeking: Boot ✔ — Jimny klaar ✔ — Wildkamperen: ON</div>
+      </div>
+    </div>
 
-  <div class="footer">
-    We vertrekken op 16 augustus 2025 – aftellen maar!
+    <div class="confetti" id="confetti"></div>
   </div>
 
   <script>
-    // Countdown & tijdsbalk
-    const countdownEl = document.getElementById('countdown');
-    const progressBar = document.getElementById('progress-bar');
-    const endDate = new Date("2025-08-16T00:00:00");
-    const todayMidnight = new Date();
-    todayMidnight.setHours(0, 0, 0, 0);
+    // === CONFIGURE TARGET DATE HERE ===
+    // Standaard: maandag 18 augustus 2025 00:00 local time (start week 34, 2025)
+    const targetDate = new Date('2025-08-18T00:00:00');
+    // ================================
 
-    function updateCountdown() {
+    const daysEl = document.querySelector('#days .num');
+    const hoursEl = document.querySelector('#hours .num');
+    const minsEl = document.querySelector('#minutes .num');
+    const secsEl = document.querySelector('#seconds .num');
+    const progressBar = document.getElementById('progressBar');
+    const dEl = document.getElementById('days');
+    const hEl = document.getElementById('hours');
+    const mEl = document.getElementById('minutes');
+    const sEl = document.getElementById('seconds');
+
+    // compute total window for progress: from now to target (cap at 100% when past)
+    const startMoment = new Date();
+
+    let soundOn = false; let audio;
+    document.getElementById('toggleSound').addEventListener('click', ()=>{
+      soundOn = !soundOn; document.getElementById('toggleSound').textContent = soundOn ? '🔊 Geluid: AAN' : '🔈 Geluid';
+      if(soundOn && !audio){ audio = new Audio(); audio.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA='; /* tiny silent clip placeholder */ }
+      if(soundOn && audio) audio.play().catch(()=>{});
+    });
+
+    function pad(n){return String(n).padStart(2,'0')}
+
+    function update(){
       const now = new Date();
-      const diff = endDate - now;
+      let diff = Math.max(0, targetDate - now);
+      const totalWindow = Math.max(1, targetDate - startMoment);
+      const passed = Math.min(totalWindow, Math.max(0, now - startMoment));
+      const pct = Math.round((passed / totalWindow) * 100);
+      progressBar.style.width = pct + '%';
 
-      if (diff <= 0) {
-        countdownEl.textContent = "Het is zover! Op naar Zweden! 🇸🇪";
+      const sec = Math.floor(diff/1000) % 60;
+      const min = Math.floor(diff/1000/60) % 60;
+      const hour = Math.floor(diff/1000/60/60) % 24;
+      const days = Math.floor(diff/1000/60/60/24);
+
+      daysEl.textContent = days;
+      hoursEl.textContent = pad(hour);
+      minsEl.textContent = pad(min);
+      secsEl.textContent = pad(sec);
+
+      // pulse the largest changing unit
+      [dEl,hEl,mEl,sEl].forEach(el=>el.classList.remove('pulse'));
+      if(days>0) dEl.classList.add('pulse');
+      else if(hour>0) hEl.classList.add('pulse');
+      else if(min>0) mEl.classList.add('pulse');
+      else sEl.classList.add('pulse');
+
+      if(diff<=0){
+        celebrate();
         clearInterval(timer);
-        return;
       }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-
-      countdownEl.textContent = `${days} dagen, ${hours} uur, ${minutes} min, ${seconds} sec`;
-
-      const totalTime = endDate - todayMidnight;
-      const timePassed = now - todayMidnight;
-      const percent = Math.min(100, Math.max(0, (timePassed / totalTime) * 100));
-      progressBar.style.width = percent + '%';
     }
 
-    const timer = setInterval(updateCountdown, 1000);
-    updateCountdown();
-
-    // Kalender
-    const calendarWrapper = document.getElementById('fancy-calendar');
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const monday = new Date(today);
-    const offset = (dayOfWeek + 6) % 7;
-    monday.setDate(today.getDate() - offset);
-    monday.setHours(0, 0, 0, 0);
-
-    const totalDays = Math.ceil((endDate - monday) / (1000 * 60 * 60 * 24));
-    for (let i = 0; i <= totalDays; i++) {
-      const date = new Date(monday);
-      date.setDate(monday.getDate() + i);
-
-      const page = document.createElement('div');
-      page.classList.add('calendar-page');
-
-      if (date.toDateString() === today.toDateString()) {
-        page.classList.add('today');
-      } else if (date < today) {
-        page.classList.add('past');
-      } else {
-        page.classList.add('future');
+    // confetti creation
+    const confettiContainer = document.getElementById('confetti');
+    function makeConfetti(){
+      const colours = ['#00d1ff','#8ef08e','#ffd166','#ff6b6b','#b388ff'];
+      const count = 36;
+      for(let i=0;i<count;i++){
+        const s = document.createElement('span');
+        s.style.left = Math.random()*100 + '%';
+        s.style.top = (-10 - Math.random()*10) + 'vh';
+        s.style.background = colours[Math.floor(Math.random()*colours.length)];
+        s.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+        s.style.width = (6 + Math.random()*12)+'px';
+        s.style.height = (8 + Math.random()*18)+'px';
+        s.style.animationDelay = (Math.random()*1200) + 'ms';
+        s.style.opacity = 0.95;
+        s.style.borderRadius = (Math.random()>0.7? '3px':'50%');
+        confettiContainer.appendChild(s);
       }
-
-      page.textContent = date.getDate();
-      calendarWrapper.appendChild(page);
     }
+
+    let confettiActive = false;
+    function celebrate(){
+      if(confettiActive) return; confettiActive = true;
+      makeConfetti();
+      // big screen flash + text
+      const big = document.createElement('div');
+      big.style.position='fixed'; big.style.inset=0; big.style.display='flex'; big.style.alignItems='center'; big.style.justifyContent='center';
+      big.style.fontSize='60px'; big.style.fontWeight=900; big.style.zIndex=9999; big.style.pointerEvents='none';
+      big.style.background='radial-gradient(circle at 50% 30%, rgba(255,255,255,0.12), rgba(255,255,255,0))';
+      big.textContent = 'WE GAAN NAAR ZWEDEN! 🇸🇪🚙🎉';
+      document.body.appendChild(big);
+      setTimeout(()=>{ big.style.transition='opacity 900ms'; big.style.opacity=0; setTimeout(()=>big.remove(),1000)},3500);
+
+      // play quick victory beep if user allowed
+      if(soundOn){ try{ const t=new AudioContext(); const o=t.createOscillator(); const g=t.createGain(); o.connect(g); g.connect(t.destination); o.type='sine'; o.frequency.value=880; g.gain.value=0.01; o.start(); setTimeout(()=>{ o.frequency.value=440 },120); setTimeout(()=>{ o.stop(); t.close() },600); }catch(e){}}
+    }
+
+    // button to manually trigger
+    document.getElementById('celebrateBtn').addEventListener('click', celebrate);
+
+    makeConfetti();
+    update();
+    const timer = setInterval(update, 1000);
   </script>
-
 </body>
 </html>
